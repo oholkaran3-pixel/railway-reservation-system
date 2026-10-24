@@ -1,0 +1,278 @@
+package com.railway;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.*;
+
+public class App extends JFrame {
+
+    private final Color navy = new Color(20, 55, 100);
+    private final Color blue = new Color(40, 110, 190);
+    private final Color background = new Color(242, 247, 252);
+
+    public App() {
+        setTitle("Railway Reservation System");
+        setSize(1000, 650);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(background);
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(navy);
+        header.setBorder(new EmptyBorder(22, 28, 22, 28));
+
+        JLabel title = new JLabel("RAILWAY RESERVATION SYSTEM");
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+
+        JLabel subtitle = new JLabel("Your journey starts here");
+        subtitle.setForeground(new Color(220, 232, 245));
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JPanel heading = new JPanel();
+        heading.setOpaque(false);
+        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+        heading.add(title);
+        heading.add(Box.createVerticalStrut(7));
+        heading.add(subtitle);
+        header.add(heading, BorderLayout.WEST);
+        add(header, BorderLayout.NORTH);
+
+        JPanel sidebar = new JPanel();
+        sidebar.setBackground(Color.WHITE);
+        sidebar.setBorder(new EmptyBorder(25, 16, 25, 16));
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setPreferredSize(new Dimension(220, 0));
+
+        JLabel menuTitle = new JLabel("MAIN MENU");
+        menuTitle.setFont(new Font("Arial", Font.BOLD, 13));
+        menuTitle.setForeground(Color.GRAY);
+        menuTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(menuTitle);
+        sidebar.add(Box.createVerticalStrut(22));
+
+        JButton homeButton = createButton("Dashboard");
+        JButton trainsButton = createButton("Search Trains");
+        JButton bookingButton = createButton("Book Ticket");
+        JButton cancelButton = createButton("Cancel Ticket");
+
+        sidebar.add(homeButton);
+        sidebar.add(Box.createVerticalStrut(12));
+        sidebar.add(trainsButton);
+        sidebar.add(Box.createVerticalStrut(12));
+        sidebar.add(bookingButton);
+        sidebar.add(Box.createVerticalStrut(12));
+        sidebar.add(cancelButton);
+
+        add(sidebar, BorderLayout.WEST);
+
+        JPanel content = new JPanel(new BorderLayout(15, 18));
+        content.setBackground(background);
+        content.setBorder(new EmptyBorder(28, 30, 28, 30));
+
+        JLabel welcome = new JLabel("Welcome to Railway Express");
+        welcome.setFont(new Font("Arial", Font.BOLD, 24));
+        welcome.setForeground(navy);
+
+        JLabel description = new JLabel(
+                "Manage train schedules and railway reservations in one place.");
+        description.setFont(new Font("Arial", Font.PLAIN, 14));
+        description.setForeground(Color.DARK_GRAY);
+
+        JPanel intro = new JPanel();
+        intro.setOpaque(false);
+        intro.setLayout(new BoxLayout(intro, BoxLayout.Y_AXIS));
+        intro.add(welcome);
+        intro.add(Box.createVerticalStrut(10));
+        intro.add(description);
+
+        JPanel cards = new JPanel(new GridLayout(1, 2, 18, 18));
+        cards.setOpaque(false);
+
+        cards.add(createCard("TRAIN SCHEDULE",
+                "View available trains and journey details.",
+                "Search Trains"));
+        cards.add(createCard("RESERVATIONS",
+                "Access the ticket reservation section.",
+                "Book Ticket"));
+
+        content.add(intro, BorderLayout.NORTH);
+        content.add(cards, BorderLayout.CENTER);
+        add(content, BorderLayout.CENTER);
+
+        homeButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this,
+                    "Welcome to Railway Reservation System!");
+        });
+
+        trainsButton.addActionListener(e -> loadTrains());
+
+        bookingButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this,
+                    "Booking functionality will be added next.",
+                    "Book Ticket", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        cancelButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this,
+                    "Cancellation functionality will be added next.",
+                    "Cancel Ticket", JOptionPane.INFORMATION_MESSAGE);
+        });
+    }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setForeground(navy);
+        button.setBackground(Color.WHITE);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setFocusPainted(false);
+        button.setBorder(new EmptyBorder(13, 12, 13, 12));
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    private JPanel createCard(String heading, String description,
+                              String buttonText) {
+        JPanel card = new JPanel();
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 230, 240)),
+                new EmptyBorder(24, 22, 24, 22)));
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel(heading);
+        title.setFont(new Font("Arial", Font.BOLD, 17));
+        title.setForeground(blue);
+
+        JTextArea text = new JTextArea(description);
+        text.setFont(new Font("Arial", Font.PLAIN, 14));
+        text.setForeground(Color.DARK_GRAY);
+        text.setEditable(false);
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
+        text.setOpaque(false);
+        text.setFocusable(false);
+
+        JButton action = new JButton(buttonText);
+        action.setBackground(blue);
+        action.setForeground(Color.WHITE);
+        action.setFocusPainted(false);
+        action.setFont(new Font("Arial", Font.BOLD, 13));
+        action.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        action.addActionListener(e -> {
+            if (buttonText.equals("Search Trains")) {
+                loadTrains();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Booking functionality will be added next.");
+            }
+        });
+
+        card.add(title);
+        card.add(Box.createVerticalStrut(18));
+        card.add(text);
+        card.add(Box.createVerticalStrut(25));
+        card.add(action);
+
+        return card;
+    }
+
+    private String readPassword() {
+        String password = System.getenv("RAILWAY_DB_PASSWORD");
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalStateException(
+                    "Database password is missing. Set RAILWAY_DB_PASSWORD in PowerShell.");
+        }
+        return password;
+    }
+
+    private void loadTrains() {
+        String url = "jdbc:mysql://localhost:3306/railway_reservation";
+
+        try (Connection con = DriverManager.getConnection(
+                    url, "root", readPassword());
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(
+                    "SELECT train_number, train_name, source_station, "
+                  + "destination_station, departure_time, arrival_time, "
+                  + "fare FROM trains")) {
+
+            String[] columns = {
+                    "Train Number", "Train Name", "From",
+                    "Destination", "Departure", "Arrival", "Fare (Rs.)"
+            };
+
+            DefaultTableModel model = new DefaultTableModel(columns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("train_number"),
+                        rs.getString("train_name"),
+                        rs.getString("source_station"),
+                        rs.getString("destination_station"),
+                        rs.getString("departure_time"),
+                        rs.getString("arrival_time"),
+                        rs.getBigDecimal("fare")
+                });
+            }
+
+            JTable table = new JTable(model);
+            table.setRowHeight(30);
+            table.setFont(new Font("Arial", Font.PLAIN, 13));
+            table.getTableHeader().setFont(
+                    new Font("Arial", Font.BOLD, 13));
+            table.getTableHeader().setBackground(navy);
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.setAutoCreateRowSorter(true);
+            table.setFillsViewportHeight(true);
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new Dimension(850, 350));
+
+            JPanel panel = new JPanel(new BorderLayout(0, 12));
+            panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+            panel.add(new JLabel("Available Trains"), BorderLayout.NORTH);
+            panel.add(scrollPane, BorderLayout.CENTER);
+
+            JOptionPane.showMessageDialog(
+                    this, panel,
+                    "Railway Express | Train Schedule",
+                    JOptionPane.PLAIN_MESSAGE);
+
+            if (model.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "No trains found in the database.");
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not load trains.\n" + ex.getMessage(),
+                    "Database Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(
+                        UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ignored) {
+            }
+            new App().setVisible(true);
+        });
+    }
+}

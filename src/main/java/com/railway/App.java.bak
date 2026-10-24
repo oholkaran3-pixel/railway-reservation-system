@@ -1,0 +1,70 @@
+
+private void loadTrains() {
+    String url = "jdbc:mysql://localhost:3306/railway_reservation";
+
+    try (Connection con = DriverManager.getConnection(
+                url, "root", readPassword());
+         Statement st = con.createStatement();
+         ResultSet rs = st.executeQuery(
+                "SELECT train_number, train_name, source_station, "
+              + "destination_station, departure_time, arrival_time, "
+              + "fare FROM trains")) {
+
+        String[] columns = {
+                "Train Number", "Train Name", "From",
+                "Destination", "Departure", "Arrival", "Fare (Rs.)"
+        };
+
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                    rs.getString("train_number"),
+                    rs.getString("train_name"),
+                    rs.getString("source_station"),
+                    rs.getString("destination_station"),
+                    rs.getString("departure_time"),
+                    rs.getString("arrival_time"),
+                    rs.getBigDecimal("fare")
+            });
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(32);
+        table.setFont(new Font("Arial", Font.PLAIN, 13));
+        table.getTableHeader().setFont(
+                new Font("Arial", Font.BOLD, 13));
+        table.getTableHeader().setBackground(navy);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setAutoCreateRowSorter(true);
+        table.setFillsViewportHeight(true);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(850, 350));
+
+        JPanel panel = new JPanel(new BorderLayout(0, 12));
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+        panel.add(new JLabel("Available Trains"), BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        JOptionPane.showMessageDialog(
+                this,
+                panel,
+                "Railway Express | Train Schedule",
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(
+                this,
+                "Could not load trains.\n" + ex.getMessage(),
+                "Database Connection Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+}
